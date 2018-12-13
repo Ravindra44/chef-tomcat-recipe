@@ -72,6 +72,18 @@ else
 		command "chkconfig --add tomcat7"
 		action :run
 	end
-	
+end
+
+template "#{tc7target}/tomcat/conf/server.xml" do
+	source "server.xml.erb"
+	owner "#{tc7user}"
+	group "#{tc7group}"
+	mode "0644"
+end
+
+service "tomcat7" do 
+	service_name "tomcat7"
+	action :start
+end
 			
 	
