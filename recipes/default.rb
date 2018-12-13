@@ -23,12 +23,55 @@ group "#{tc7group}" do
 end
 
 ## create base folder
-directory "#{tc7target}/apache-tomcat-#{tc7ver}}" do
+directory "#{tc7target}/apache-tomcat-#{tc7ver}" do
 	owner "#{tc7user}"
 	group "#{tc7group}"
 	node "0755"
 	action :create
 end
 
+##Extract
+execute "tar" do
+	user "#{tc7user}"
+	group "#{tc7group}"
+	installation_dir = "#{tc7target}"
+	cwd installation_dir
+	command "tar zxf /tmp/#{tc7tarball}"
+	action :run
+end
 
+link "#{tc7target}/tomcat" do
+	to "apache-tomcat-#{tc7ver}"
+	link_type :symbolic
+end
+
+case node["platform"]
+	when "debian","ubuntu"
+		template "/etc/init.d/tomcat7" do
+			source "init-debian.erb"
+			owner "root"
+			group "root"
+			mode "0755"
+		end
+			execute "init-deb" do
+				user "root"
+				group "root"
+				command "update-rc.d tomcat7 defaults"
+				action :run
+			end
+else
+	template "/etc/init.d/tomcat7" do
+		source "init-rb.deb"
+		owner "root"
+		group "root"
+		mode "0755"
+	end
+	execute "init-rb" do
+		user "root"
+		group "root"
+		command "chkconfig --add tomcat7"
+		action :run
+	end
+	
+			
 	
